@@ -231,20 +231,19 @@ def classify_transaction_type(tx):
         return 'contract_call'
 
 
-def get_all_blocks(chain: str|None=None, n: int=20, classify: bool = False, median_block: int|None=None):
-    """Get blocks (not transactions) with optional median-based navigation"""
+def get_all_blocks(chain: str|None=None, n: int=20, classify: bool = False, start_block: int|None=None):
+    """Get blocks with simple sequential pagination"""
     w3 = mgr.get_web3(chain)
     
-    # Calculate start and end blocks
-    if median_block is None:
+    # Calculate start and end blocks - always use simple sequential pagination
+    if start_block is None:
         # Default: latest blocks
         latest_block = get_block_number(chain)
         start_block = latest_block
         end_block = max(latest_block - n + 1, 0)
     else:
-        # Median-based: center around the specified block
-        start_block = median_block + (n // 2)
-        end_block = median_block - (n // 2)
+        # Start from specified block and go backwards
+        end_block = max(start_block - n + 1, 0)
     
     print(f"Processing blocks {end_block} to {start_block} (total: {start_block - end_block + 1} blocks)")
     
@@ -255,7 +254,75 @@ def get_all_blocks(chain: str|None=None, n: int=20, classify: bool = False, medi
             # Small delay between blocks
             time.sleep(0.01)
             
-             # If classification is needed, get full transactions
+            # If classification is needed, get full transactions
+            full_txs = classify
+            block = w3.eth.get_block(block_num, full_transactions=full_txs)
+            formatted_time = datetime.fromtimestamp(block.timestamp).strftime('%Y-%m-%d %H:%M:%S')
+            
+            if classify:
+                # For classification, return full transaction data
+                block_data = {
+                    'number': block.number,
+                    'hash': block.hash.hex(),
+                    'timestamp': formatted_time,
+                    'transactions': block.transactions,  # Full objects
+                    'gasUsed': block.gasUsed,
+                    'gasLimit': block.gasLimit,
+                    'miner': block.miner,
+                    'size': block.size
+                }
+            else:
+                # For display, just count transactions
+                block_data = {
+                    'number': block.number,
+                    'hash': block.hash.hex(),
+                    'timestamp': formatted_time,
+                    'transactions': len(block.transactions),  # Just count
+                    'gasUsed': block.gasUsed,
+                    'gasLimit': block.gasLimit,
+                    'miner': block.miner,
+                    'size': block.size
+                }
+            
+            blocks.append(block_data)
+            
+        except Exception as e:
+            if "429" in str(e) or "rate limit" in str(e).lower():
+                print(f"Rate limit hit at block {block_num}, waiting 3 seconds...")
+                time.sleep(3)
+                continue
+            else:
+                print(f"Error at block {block_num}: {e}")
+                continue
+    
+    print(f"Total blocks found: {len(blocks)}")
+    return blocks
+
+
+def get_all_blocks_simple(chain: str|None=None, n: int=20, classify: bool = False, start_block: int|None=None):
+    """Get blocks with simple sequential pagination"""
+    w3 = mgr.get_web3(chain)
+    
+    # Calculate start and end blocks
+    if start_block is None:
+        # Default: latest blocks
+        latest_block = get_block_number(chain)
+        start_block = latest_block
+        end_block = max(latest_block - n + 1, 0)
+    else:
+        # Start from specified block and go backwards
+        end_block = max(start_block - n + 1, 0)
+    
+    print(f"Processing blocks {end_block} to {start_block} (total: {start_block - end_block + 1} blocks)")
+    
+    blocks = []
+    
+    for block_num in range(start_block, end_block - 1, -1):
+        try:
+            # Small delay between blocks
+            time.sleep(0.01)
+            
+            # If classification is needed, get full transactions
             full_txs = classify
             block = w3.eth.get_block(block_num, full_transactions=full_txs)
             formatted_time = datetime.fromtimestamp(block.timestamp).strftime('%Y-%m-%d %H:%M:%S')

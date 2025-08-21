@@ -54,16 +54,13 @@
                 <li class="nav-item">
                     <a href="{{ url_for('searchfor', chain=current_chain) }}" class="nav-link {% if request.endpoint == 'searchfor' %}active{% endif %}">ERC20 Search</a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ url_for('erc3643', chain=current_chain) }}" class="nav-link {% if request.endpoint == 'erc3643' %}active{% endif %}">ERC3643 Search</a>
-                </li>
 
             </ul>
             
             <div class="nav-right">
                 <!-- Chain Selector -->
                 <div class="chain-selector">
-                    <select onchange="window.location.href='?chain=' + this.value">
+                    <select onchange="changeChain(this.value)">
                         {% for key, chain in CHAINS.items() %}
                         <option value="{{ key }}" {% if key == current_chain %}selected{% endif %}>
                             {{ key }}
@@ -89,5 +86,19 @@
     <div class="main-content">
         {% block content %}{% endblock %}
     </div>
+    
+    <script>
+        function changeChain(newChain) {
+            // Get current URL and path
+            const currentUrl = window.location.href;
+            const url = new URL(currentUrl);
+            
+            // Update the chain parameter
+            url.searchParams.set('chain', newChain);
+            
+            // Redirect to the same page with new chain
+            window.location.href = url.toString();
+        }
+    </script>
 </body>
 </html>

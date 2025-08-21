@@ -67,7 +67,7 @@
             {% if blocks %}
                 <div class="controls-row">
                     <div class="older-link">
-                        <a href="{{ url_for('home', chain=current_chain, n=n, start=blocks[-1].number - 1) }}">
+                        <a href="{{ url_for('home', chain=current_chain, n=n, start_block=blocks[-1].number) }}">
                             ← Load Older Blocks
                         </a>
                     </div>
@@ -80,7 +80,7 @@
                         <form action="{{ url_for('home', chain=current_chain) }}" method="get">
                             <input type="hidden" name="chain" value="{{ current_chain }}">
                             <input type="hidden" name="n" value="{{ n }}">
-                            <input name="start" placeholder="Block #" class="home-search-input" required>
+                            <input name="start_block" placeholder="Block #" class="home-search-input" required>
                             <button type="submit" class="home-search-button">Start from</button>
                         </form>
                     </div>

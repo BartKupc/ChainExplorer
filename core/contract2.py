@@ -291,7 +291,7 @@ class ContractClassifier:
                 if contract_code:
                     # Try to classify the created contract
                     contract_type = self.classify_address(contract_address)
-                    return f"Contract Creation: {contract_type}"
+                    return f"Contract Creation: {contract_type['classification']}"
                 else:
                     return "Contract Creation (Failed)"
             except Exception as e:
@@ -601,7 +601,7 @@ class ContractClassifier:
                 elif 'T-REX Interaction' in tx_type:
                     classifications['trex_interactions'] += 1
                     print(f"  -> Counted as T-REX Interaction")
-                elif 'ERC-20' in tx_type or 'Token Transfer' in tx_type or 'Token Mint' in tx_type or 'Token Burn' in tx_type or 'Token Approval' in tx_type:
+                elif 'Token Transfer' in tx_type or 'Token Mint' in tx_type or 'Token Burn' in tx_type or 'Token Approval' in tx_type:
                     classifications['erc20_transfers'] += 1
                     print(f"  -> Counted as ERC-20 Transfer")
                 elif 'ERC-721' in tx_type:
@@ -755,17 +755,8 @@ class ContractClassifier:
             
             # Analyze input data for function calls
             if tx_dict.get('input') and tx_dict['input'] != '0x':
-                # Convert bytes to hex string if needed
-                if isinstance(tx_dict['input'], bytes):
-                    input_hex = tx_dict['input'].hex()
-                else:
-                    input_hex = str(tx_dict['input'])
-                
-                # Extract function signature (first 4 bytes = 8 hex chars)
-                function_sig = '0x' + input_hex[:8]
+                function_sig = tx_dict['input'][:10]
                 function_name = TX_FUNCTION_SIGNATURES.get(function_sig, "Unknown Function")
-                
-                print(f"DEBUG: Input: {tx_dict['input']}, Hex: {input_hex}, Function signature: {function_sig}, Function name: {function_name}")
                 
                 if "transfer" in function_name.lower():
                     return 'Token Transfer'
@@ -810,18 +801,7 @@ class ContractClassifier:
             
             # Try to extract function name from input data
             if tx_dict.get('input') and tx_dict['input'] != '0x':
-                # Handle both bytes and string inputs safely
-                if isinstance(tx_dict['input'], bytes):
-                    function_sig = '0x' + tx_dict['input'][:4].hex()
-                elif isinstance(tx_dict['input'], str):
-                    # If it's already a hex string, extract first 4 bytes (8 hex chars)
-                    if tx_dict['input'].startswith('0x'):
-                        function_sig = tx_dict['input'][:10]  # 0x + 8 hex chars
-                    else:
-                        function_sig = '0x' + tx_dict['input'][:8]  # 8 hex chars
-                else:
-                    function_sig = str(tx_dict['input'])[:10]
-                
+                function_sig = tx_dict['input'][:10]
                 function_name = TX_FUNCTION_SIGNATURES.get(function_sig, "Unknown Function")
                 details['function'] = function_name
             
@@ -829,97 +809,3 @@ class ContractClassifier:
             
         except Exception as e:
             return {'error': str(e)}
-
-    def classify_block_from_stored_classifications(self, block_data):
-        """Classify block using already-stored detailed transaction classifications (FAST - no RPC calls!)"""
-        if not block_data or 'transactions' not in block_data:
-            return None
-        
-        # Check if transactions is a list or an integer
-        transactions = block_data['transactions']
-        if isinstance(transactions, int):
-            # If it's an integer (transaction count), return basic classification
-            return {
-                'block_type': 'Standard Block',
-                'classifications': {
-                    'contract_creations': 0,
-                    'trex_interactions': 0,
-                    'erc20_transfers': 0,
-                    'erc721_transfers': 0,
-                    'generic_contracts': transactions,
-                    'total_transactions': transactions
-                },
-                'primary_activity': f"Generic Contracts ({transactions})",
-                'gas_efficiency': 'Unknown'
-            }
-            
-        classifications = {
-            'contract_creations': 0,
-            'trex_interactions': 0,
-            'erc20_transfers': 0,
-            'erc721_transfers': 0,
-            'generic_contracts': 0,
-            'total_transactions': len(transactions)
-        }
-        
-        # Use the already-stored detailed classifications (NO RPC CALLS!)
-        print(f"DEBUG: Using stored classifications for {len(transactions)} transactions")
-        for i, tx in enumerate(transactions):
-            try:
-                # Check if transaction has stored classification
-                if 'classification' in tx and tx['classification'].get('type'):
-                    tx_type = tx['classification']['type']
-                    print(f"DEBUG: Transaction {i} stored type: {tx_type}")
-                    
-                    # Count based on stored classification
-                    if 'Contract Creation' in tx_type:
-                        classifications['contract_creations'] += 1
-                        print(f"  -> Counted as Contract Creation")
-                    elif 'T-REX' in tx_type or 'ERC-3643' in tx_type:
-                        classifications['trex_interactions'] += 1
-                        print(f"  -> Counted as T-REX Interaction")
-                    elif 'ERC-20' in tx_type or 'Token' in tx_type:
-                        classifications['erc20_transfers'] += 1
-                        print(f"  -> Counted as ERC-20 Transfer")
-                    elif 'ERC-721' in tx_type:
-                        classifications['erc721_transfers'] += 1
-                        print(f"  -> Counted as ERC-721")
-                    else:
-                        classifications['generic_contracts'] += 1
-                        print(f"  -> Counted as Generic Contract")
-                else:
-                    print(f"DEBUG: Transaction {i} missing classification data")
-                    classifications['generic_contracts'] += 1
-                    
-            except Exception as e:
-                print(f"DEBUG: Error processing transaction {i}: {e}")
-                classifications['generic_contracts'] += 1
-        
-        # Debug: Print final classification counts
-        print(f"DEBUG: Final block classifications from stored data:")
-        print(f"  Contract Creations: {classifications['contract_creations']}")
-        print(f"  T-REX Interactions: {classifications['trex_interactions']}")
-        print(f"  ERC-20 Transfers: {classifications['erc20_transfers']}")
-        print(f"  ERC-721 Transfers: {classifications['erc721_transfers']}")
-        print(f"  Generic Contracts: {classifications['generic_contracts']}")
-        
-        # Determine block type
-        if classifications['contract_creations'] > 0:
-            block_type = "Deployment Block"
-        elif classifications['trex_interactions'] > 0:
-            block_type = "T-REX Activity Block"
-        elif classifications['erc20_transfers'] > 0:
-            block_type = "Token Transfer Block"
-        elif classifications['erc721_transfers'] > 0:
-            block_type = "NFT Activity Block"
-        else:
-            block_type = "Standard Block"
-        
-        print(f"DEBUG: Block type determined from stored data: {block_type}")
-            
-        return {
-            'block_type': block_type,
-            'classifications': classifications,
-            'primary_activity': self._get_primary_activity(classifications),
-            'gas_efficiency': self._calculate_gas_efficiency(block_data)
-        }

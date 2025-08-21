@@ -15,20 +15,6 @@
         <div class="box">
             <h2>Block #{{ block.number }}</h2>
             
-            <!-- Debug: Show what's available -->
-            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace; font-size: 12px;">
-                <strong>Debug:</strong> Block has classification: {{ 'YES' if block.classification else 'NO' }}<br>
-                {% if block.classification %}
-                    Block type: {{ block.classification.block_type }}<br>
-                    Primary activity: {{ block.classification.primary_activity }}<br>
-                    Gas efficiency: {{ block.classification.gas_efficiency }}<br>
-                    Contract creations: {{ block.classification.classifications.contract_creations }}<br>
-                    T-REX interactions: {{ block.classification.classifications.trex_interactions }}<br>
-                    ERC-20 transfers: {{ block.classification.classifications.erc20_transfers }}<br>
-                    ERC-721 transfers: {{ block.classification.classifications.erc721_transfers }}<br>
-                    Generic contracts: {{ block.classification.classifications.generic_contracts }}
-                {% endif %}
-            </div>
             
             <!-- Enhanced Block Classification Summary -->
             {% if block.classification %}
@@ -126,8 +112,8 @@
                     <div class="transaction-details">
                         <div class="tx-hash">
                             <span class="label">Hash:</span>
-                            <a href="{{ url_for('tx_page', txhash=tx.hash.hex(), chain=current_chain) }}" class="hash-link">
-                                {{ tx.hash.hex() }}
+                            <a href="{{ url_for('tx_page', txhash=tx.hash, chain=current_chain) }}" class="hash-link">
+                                {{ tx.hash }}
                             </a>
                         </div>
                         

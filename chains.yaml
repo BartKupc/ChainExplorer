@@ -11,12 +11,7 @@ chains:
     rpc_url: "http://127.0.0.1:8545"
     fallback: "http://127.0.0.1:8545"
     chain_id: 31337
-    
-  Ethereum:
-    chain_id: 1
-    rpc_url: "https://cloudflare-eth.com"
-    fallback: "https://cloudflare-eth.com"
-    
+       
 
   BaseSepolia:
     chain_id: 84532

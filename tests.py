@@ -82,22 +82,22 @@ def test_get_block():
         print("🔍 Checking Cronos chain...")
         
         # Get latest block number
-        latest_block = q.get_block_number("Cronos")
+        latest_block = q.get_block_number("Hardhat")
         print(f" Latest block on Cronos: {latest_block}")
         
         # Try to get block 1 (should exist)
         try:
-            block_1 = q.get_block("1", "Cronos")
+            block_1 = q.get_block("27", "Hardhat",True)
             print(f" Block 1 exists: {block_1['number']}")
         except Exception as e:
             print(f" Block 1 error: {e}")
         
-        # Try to get block 222
-        try:
-            block_222 = q.get_block("222", "Cronos")
-            print(f" Block 222 exists: {block_222['number']}")
-        except Exception as e:
-            print(f" Block 222 error: {e}")
+        # # Try to get block 222
+        # try:
+        #     block_222 = q.get_block("222", "Hardhat")
+        #     print(f" Block 222 exists: {block_222['number']}")
+        # except Exception as e:
+        #     print(f" Block 222 error: {e}")
 
 def test_direct_rpc():
     """Test RPC directly without our chain manager"""
@@ -496,13 +496,144 @@ def test_full_classify_demo():
         print("=" * 60)
 
 
+def test_log_scanning():
+    with app.app_context():
+        """Quick test to see how many logs are in recent blocks"""
+        print("🔍 QUICK LOG SCANNING TEST")
+        print("=" * 50)
+        
+        # Test on Hardhat (should have T-REX contracts)
+        classifier = ContractClassifier('Hardhat')
+        
+        # Focus on block 27 where we know there should be 4 events
+        block_num = 27
+        print(f"\n📦 Block {block_num}:")
+        
+        try:
+            # Get block using your working method
+            block = q.get_block(str(block_num), "Hardhat", True)
+            if not block:
+                print("   ❌ Block not found")
+                return
+                
+            print(f"   📊 Transactions: {len(block['transactions'])}")
+            
+            # Check each transaction for logs using receipt
+            for i, tx in enumerate(block['transactions']):
+                try:
+                    tx_hash = tx['hash'].hex()
+                    print(f"\n   📝 TX {i}: {tx_hash[:16]}...")
+                    
+                    # Method 1: Transaction receipt (current method)
+                    receipt = classifier.w3.eth.get_transaction_receipt(tx_hash)
+                    if receipt and receipt.logs:
+                        print(f"      📋 Receipt logs: {len(receipt.logs)}")
+                        for j, log in enumerate(receipt.logs):
+                            if log.topics:
+                                topic0 = log.topics[0].hex()
+                                event_name = EVENT_SIGNATURES.get(topic0, "Unknown")
+                                print(f"         Log {j}: {topic0[:16]}... → {event_name}")
+                    else:
+                        print(f"      📋 Receipt logs: 0")
+                    
+                    # Method 2: Direct eth_getLogs for this block
+                    print(f"      🔍 Direct eth_getLogs for block {block_num}:")
+                    try:
+                        # Try different parameter formats
+                        direct_logs = classifier.w3.eth.get_logs({
+                            'fromBlock': block_num,
+                            'toBlock': block_num
+                        })
+                        
+                        if direct_logs:
+                            print(f"         Found {len(direct_logs)} total logs in block")
+                            
+                            # Filter logs for this specific transaction
+                            tx_logs = [log for log in direct_logs if log.transactionHash.hex() == tx_hash]
+                            print(f"         TX-specific logs: {len(tx_logs)}")
+                            
+                            for j, log in enumerate(tx_logs):
+                                if log.topics:
+                                    topic0 = log.topics[0].hex()
+                                    event_name = EVENT_SIGNATURES.get(topic0, "Unknown")
+                                    print(f"            Log {j}: {topic0[:16]}... → {event_name}")
+                        else:
+                            print(f"         eth_getLogs returned None or empty")
+                            
+                    except Exception as e:
+                        print(f"         ❌ eth_getLogs error: {e}")
+                        
+                        # Try alternative method - get logs by transaction hash
+                        print(f"      🔍 Alternative: Try to get logs by transaction hash")
+                        try:
+                            # Some RPC nodes support getting logs for specific transaction
+                            tx_logs = classifier.w3.eth.get_logs({
+                                'fromBlock': block_num,
+                                'toBlock': block_num,
+                                'topics': [],
+                                'transactionHash': tx_hash
+                            })
+                            if tx_logs:
+                                print(f"         Found {len(tx_logs)} logs for this transaction")
+                                for j, log in enumerate(tx_logs):
+                                    if log.topics:
+                                        topic0 = log.topics[0].hex()
+                                        event_name = EVENT_SIGNATURES.get(topic0, "Unknown")
+                                        print(f"            Log {j}: {topic0[:16]}... → {event_name}")
+                            else:
+                                print(f"         No logs found for transaction")
+                        except Exception as e2:
+                            print(f"         ❌ Alternative method also failed: {e2}")
+                        
+                except Exception as e:
+                    print(f"   ❌ TX {i} error: {e}")
+                    
+        except Exception as e:
+            print(f"   ❌ Block error: {e}")
+        
+        print("\n" + "=" * 50)
+def test_log_scanning_2():
+    with app.app_context():
+        from core.chain_manager import ChainManager
+        mgr = ChainManager()
+        w3 = mgr.get_web3("Hardhat")
+        """Quick test using q.get_block() + transaction receipts"""
+        print("�� QUICK LOG SCANNING TEST")
+        print("=" * 50)
+        
+        # Get block 27 using your working method
+        block = q.get_block("27", "Hardhat", True)
+        print(f"📦 Block {block['number']}: {len(block['transactions'])} transactions")
+        
+        # Check each transaction for logs
+        for i, tx in enumerate(block['transactions']):
+            try:
+                tx_hash = tx['hash'].hex()
+                print(f"\n TX {i}: {tx_hash}")
+                
+                # Get receipt for logs
+                receipt = w3.eth.get_transaction_receipt(tx_hash)
+                if receipt and receipt.logs:
+                    print(f"    Found {len(receipt.logs)} logs")
+                    for j, log in enumerate(receipt.logs):
+                        if log.topics:
+                            topic0 = log.topics[0].hex()
+                            event_name = EVENT_SIGNATURES.get(topic0, "Unknown")
+                            print(f"      Log {j}: {topic0} → {event_name}")
+                else:
+                    print(f"   📊 0 logs found")
+                    
+            except Exception as e:
+                print(f"   ❌ Error: {e}")
+
 if __name__ == "__main__":
     # test_config()
     # test_chain_manager()
     # test_queries()
-    # print(q.get_block_number("cronos"))
-    # print(q.get_block("cronos", "1"))
-    # print(q.latest_blocks(10, "cronos"))
+    # # print(q.get_block_number("cronos"))
+    # with app.app_context():
+    #     print(q.get_block("27","Hardhat",True))
+    # # print(q.latest_blocks(10, "cronos"))
     # test_database()
     # print(q.get_block("222", "Cronos"))
     # print(get_chains())
@@ -516,3 +647,5 @@ if __name__ == "__main__":
     # test_classifier_simple()
     # test_classifier_full_contract_creation()  # Focus on contract creations
     test_full_classify_demo()  # Demonstrate full_classify method
+    # test_log_scanning()  # Quick log scanning test
+    # test_log_scanning()  # Quick log scanning test
