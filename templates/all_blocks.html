@@ -5,149 +5,480 @@
 {% block content %}
 <h1>All Blocks</h1>
 
-<!-- Latest Blocks -->
-<div class="box">
-    <h2>Blocks from: {{ blocks[0].number }} to {{ blocks[-1].number }}</h2>
-    {% if blocks %}
-        <div class="controls-row2">
-            <div class="older-link2">
-                <a href="{{ url_for('all_blocks', chain=current_chain, n=n, address=address, token=token, window=window, max_logs=max_logs, start_block=blocks[-1].number) }}">
-                    ← Load Older Blocks
-                </a>
-            </div>
-            <div class="transactions-link">
-                <a href="{{ url_for('all_blocks', chain=current_chain, n=n) }}">
-                    Latest Blocks
-                </a>
-            </div>
-            {% if start_block %}
-            <div class="newer-link2">
-                <a href="{{ url_for('all_blocks', chain=current_chain, n=n, address=address, token=token, window=window, max_logs=max_logs, start_block=start_block + n) }}">
-                    Load Newer Blocks →
-                </a>
-            </div>
-            {% endif %}
+        <!-- Loading Widget -->
+        <div id="loading-widget" class="loading-widget">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading blocks and transactions...</div>
+            <div class="loading-subtext">This may take a minute for blocks with many transactions</div>
         </div>
-        {% for t in blocks %}
-            <div class="block-item">
-                <!-- Left side: Block number button -->
-                <div class="block2-number">
-                    <a href="{{ url_for('block_page', ref=t.number, chain=current_chain) }}" class="block2-link">
-                        Block #{{ t.number }}
-                    </a>
+
+        <!-- Latest Blocks -->
+        <div id="content-container" class="box">
+            <h2>Blocks from: {{ blocks[0].number }} to {{ blocks[-1].number }}</h2>
+            {% if blocks %}
+                <div class="controls-row2">
+                    <div class="older-link2">
+                        <a href="{{ url_for('all_blocks', chain=current_chain, n=n, address=address, token=token, window=window, max_logs=max_logs, start_block=blocks[-1].number) }}" class="nav-link-with-loading">
+                            ← Load Older Blocks
+                        </a>
+                    </div>
+                    <div class="transactions-link">
+                        <a href="{{ url_for('all_blocks', chain=current_chain, n=n) }}" class="nav-link-with-loading">
+                            Latest Blocks
+                        </a>
+                    </div>
+                    <div class="newer-link2">
+                        <a href="{{ url_for('all_blocks', chain=current_chain, n=n, address=address, token=token, window=window, max_logs=max_logs, start_block=blocks[0].number - n) }}" class="nav-link-with-loading">
+                            Load Newer Blocks →
+                        </a>
+                    </div>
+                    <div class="all-blocks-search-form">
+                        <form action="{{ url_for('all_blocks', chain=current_chain) }}" method="get">
+                            <input type="hidden" name="chain" value="{{ current_chain }}">
+                            <input type="hidden" name="n" value="{{ n }}">
+                            <input name="start_block" placeholder="Block #" class="all-blocks-search-input" required>
+                            <button type="submit" class="all-blocks-search-button">Start from</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Main Headers Row -->
+                <div class="main-headers">
+                    <div class="header-block">Block</div>
+                    <div class="header-timestamp">Timestamp</div>
                 </div>
                 
-                <!-- Right side: Classification Summary -->
-                <div class="block2-classification">
-                    {% if t.classification %}
-                        <div class="classification-summary">
-                            <span class="primary-activity">{{ t.classification.primary_activity }}</span>
-                            <span class="gas-efficiency">Gas: {{ t.classification.gas_efficiency }}</span>
+                {% for t in blocks %}
+                    <div class="block-item">
+                        <!-- Block Header Row -->
+                        <div class="block-header-row">
+                            <div class="block-number">
+                                <a href="{{ url_for('block_page', ref=t.number, chain=current_chain) }}" class="block-link">
+                                    Block #{{ t.number }}
+                                </a>
+                            </div>
+                            <div class="block-timestamp">{{ t.timestamp }}</div>
                         </div>
                         
-                        <div class="classification-breakdown">
-                            {% if t.classification.classifications.contract_creations > 0 %}
-                                <span class="badge deployment">🏭 {{ t.classification.classifications.contract_creations }}</span>
-                            {% endif %}
-                            {% if t.classification.classifications.trex_interactions > 0 %}
-                                <span class="badge trex">🦖 {{ t.classification.classifications.trex_interactions }}</span>
-                            {% endif %}
-                            {% if t.classification.classifications.erc20_transfers > 0 %}
-                                <span class="badge erc20">🪙 {{ t.classification.classifications.erc20_transfers }}</span>
-                            {% endif %}
-                            {% if t.classification.classifications.erc721_transfers > 0 %}
-                                <span class="badge erc721">🖼️ {{ t.classification.classifications.erc721_transfers }}</span>
-                            {% endif %}
-                            {% if t.classification.classifications.generic_contracts > 0 %}
-                                <span class="badge generic">⚙️ {{ t.classification.classifications.generic_contracts }}</span>
-                            {% endif %}
+                        <!-- Transaction List -->
+                        {% if t.transactions and t.transactions|length > 0 %}
+                        <div class="transactions-section">
+                            <div class="transactions-header">
+                                <span class="tx-count">{{ t.transactions|length }} Transactions</span>
+                            </div>
+                            <div class="transactions-list">
+                                {% for tx in t.transactions %}
+                                <div class="transaction-item">
+                                    <div class="tx-number">#{{ loop.index }}</div>
+                                    <div class="tx-hash">
+                                        <a href="{{ url_for('tx_page', txhash=tx.hash, chain=current_chain) }}" class="hash-link">
+                                            {{ tx.hash }}
+                                        </a>
+                                    </div>
+                                    <div class="tx-details">
+                                        {% if tx.classification and tx.classification.details %}
+                                            {% if tx.classification.details.from %}
+                                                <span class="tx-from">From: {{ tx.classification.details.from }}</span>
+                                            {% endif %}
+                                            {% if tx.classification.details.to %}
+                                                <span class="tx-to">To: {{ tx.classification.details.to }}</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="tx-classification">
+                                        {% if tx.classification %}
+                                            <span class="tx-type-badge {{ tx.classification.type.lower().replace(' ', '-').replace('(', '').replace(')', '') }}">
+                                                {{ tx.classification.type }}
+                                            </span>
+                                        {% else %}
+                                            <span class="tx-type-badge unknown">Unknown</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                    {% else %}
-                        <div class="classification-summary">
-                            <span class="primary-activity">Standard Block</span>
-                            <span class="gas-efficiency">Gas: Standard</span>
+                        {% else %}
+                        <!-- No Transactions Section -->
+                        <div class="no-transactions-section">
+                            <div class="no-tx-header">
+                                <span class="no-tx-count">0 Transactions</span>
+                            </div>
+                            <div class="no-tx-content">
+                                <div class="no-tx-message">
+                                    <span class="no-tx-icon">📭</span>
+                                    <span class="no-tx-text">No transactions in this block</span>
+                                </div>
+                                <div class="block-info-details">
+                                    <div class="info-item">
+                                        <span class="info-label">Block Hash:</span>
+                                        <span class="info-value">{{ t.hash }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Gas Used:</span>
+                                        <span class="info-value">{{ t.gasUsed }}/{{ t.gasLimit }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Miner:</span>
+                                        <span class="info-value">{{ t.miner }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Size:</span>
+                                        <span class="info-value">{{ (t.size / 1024)|round(1) }} KB</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="info-box">
+                    <p>No blocks available. {% if error %}{{ error }}{% endif %}</p>
                 </div>
-            </div>
-            {% endfor %}
-    {% else %}
-        <div class="info-box">
-            <p>No blocks available. {% if error %}{{ error }}{% endif %}</p>
+            {% endif %}
         </div>
-    {% endif %}
-</div>
 
 <style>
-    .block2-classification {
-        border-top: 1px solid #f0f0f0;
-        padding-top: 15px;
-        margin-top: 15px;
+    /* Main Headers */
+    .main-headers {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 15px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px 8px 0 0;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
-    .classification-summary {
+    /* Block Items */
+    .block-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    /* Block Header Row */
+    .block-header-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 15px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        align-items: center;
+    }
+    
+    .block-number .block-link {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .block-number .block-link:hover {
+        color: #2980b9;
+    }
+    
+    .block-timestamp, .block-gas, .block-miner, .block-size {
+        font-family: monospace;
+        color: #495057;
+        font-size: 0.9em;
+    }
+    
+    .block-type-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .deployment-block { background: #e8f5e8; color: #27ae60; border: 1px solid #a8e6a8; }
+    .t-rex-activity-block { background: #fff3e0; color: #f39c12; border: 1px solid #ffcc80; }
+    .token-transfer-block { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+    .nft-activity-block { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
+    .standard-block { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+    
+    /* Block Summary */
+    .block-summary {
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fafbfc;
+    }
+    
+    .summary-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        margin-bottom: 15px;
     }
     
     .primary-activity {
         font-weight: 600;
         color: #2c3e50;
-        font-size: 0.95em;
+        font-size: 1em;
     }
     
     .gas-efficiency {
         font-size: 0.85em;
         color: #7f8c8d;
         background: #f8f9fa;
-        padding: 2px 8px;
+        padding: 4px 10px;
         border-radius: 12px;
+        border: 1px solid #e9ecef;
     }
     
     .classification-breakdown {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
     }
     
     .badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8em;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.85em;
         font-weight: 600;
     }
     
-    .badge.deployment {
-        background: #e8f5e8;
-        color: #27ae60;
-        border: 1px solid #a8e6a8;
+    .badge.deployment { background: #e8f5e8; color: #27ae60; border: 1px solid #a8e6a8; }
+    .badge.trex { background: #fff3e0; color: #f39c12; border: 1px solid #ffcc80; }
+    .badge.erc20 { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+    .badge.erc721 { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
+    .badge.generic { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+    
+    /* Transactions Section */
+    .transactions-section {
+        padding: 20px;
     }
     
-    .badge.trex {
-        background: #fff3e0;
-        color: #f39c12;
-        border: 1px solid #ffcc80;
+    .transactions-header {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
     }
     
-    .badge.erc20 {
-        background: #e3f2fd;
-        color: #1976d2;
-        border: 1px solid #90caf9;
+    .tx-count {
+        font-weight: 600;
+        color: #495057;
+        font-size: 1em;
     }
     
-    .badge.erc721 {
-        background: #f3e5f5;
-        color: #7b1fa2;
-        border: 1px solid #ce93d8;
+    .transactions-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
     
-    .badge.generic {
-        background: #f5f5f5;
-        color: #616161;
-        border: 1px solid #e0e0e0;
+    .transaction-item {
+        display: grid;
+        grid-template-columns: 0.5fr 2fr 3fr 1.5fr;
+        gap: 15px;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .tx-number {
+        font-weight: bold;
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    
+    .tx-type-badge {
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        font-weight: 600;
+        text-align: center;
+        display: inline-block;
+        min-width: 80px;
+    }
+    
+    .tx-type-badge.erc-20-interaction { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+    .tx-type-badge.t-rex-interaction { background: #fff3e0; color: #f39c12; border: 1px solid #ffcc80; }
+    .tx-type-badge.contract-interaction { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+    .tx-type-badge.token-mint { background: #e8f5e8; color: #27ae60; border: 1px solid #a8e6a8; }
+    .tx-type-badge.unknown { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    
+    .tx-hash .hash-link {
+        color: #6c757d;
+        text-decoration: none;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+    
+    .tx-hash .hash-link:hover {
+        color: #495057;
+        text-decoration: underline;
+    }
+    
+    .tx-details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-size: 0.85em;
+        color: #6c757d;
+    }
+    
+    .tx-from, .tx-to {
+        font-family: monospace;
+    }
+    
+    /* No Transactions Section */
+    .no-transactions-section {
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .no-tx-header {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .no-tx-count {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 1em;
+    }
+    
+    .no-tx-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .no-tx-message {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+        padding: 20px;
+        background: #e9ecef;
+        border-radius: 8px;
+        color: #6c757d;
+    }
+    
+    .no-tx-icon {
+        font-size: 1.5em;
+    }
+    
+    .no-tx-text {
+        font-size: 1.1em;
+        font-weight: 500;
+    }
+    
+    .block-info-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .info-label {
+        font-size: 0.85em;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-family: monospace;
+        color: #495057;
+        font-size: 0.9em;
+        font-weight: 600;
+    }
+    
+    /* Search Form Styles */
+    .all-blocks-search-form { display: flex; gap: 10px; align-items: center; }
+    .all-blocks-search-input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; }
+    .all-blocks-search-button { padding: 8px 16px; background: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+    .all-blocks-search-button:hover { background: #d35400; }
+    
+    /* Loading Widget */
+    .loading-widget {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin: 20px 0;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+    
+    .loading-subtext {
+        font-size: 0.9em;
+        color: #7f8c8d;
+        text-align: center;
+        max-width: 400px;
+        line-height: 1.4;
     }
 </style>
+
+<script>
+            // Show loading widget immediately when page starts loading
+        const loadingWidget = document.getElementById('loading-widget');
+        const contentContainer = document.getElementById('content-container');
+        
+        // Show loading widget immediately
+        loadingWidget.style.display = 'flex';
+        
+        // Hide loading widget and show content when page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Content is ready, show it immediately
+            loadingWidget.style.display = 'none';
+            contentContainer.style.display = 'block';
+        });
+</script>
 
 {% endblock %}

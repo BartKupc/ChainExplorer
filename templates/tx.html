@@ -83,7 +83,7 @@
                       <li><code>{{ topic }}</code></li>
                     {% endfor %}
                   </ul>
-                  <div>Data: <code>{{ log.data }}</code></div>
+                  <div>Data: <code>{{ log.data[:10] }}...</code></div>
                   <div>Block: {{ log.blockNumber }}</div>
                   <div>Transaction: <code>{{ log.transactionHash }}</code></div>
                   <div>Log Index: {{ log.logIndex }}</div>

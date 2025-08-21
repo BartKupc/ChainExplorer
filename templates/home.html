@@ -61,19 +61,31 @@
                 </div>
             </div>
         {% endif %}
-        <!-- Latest Blocks -->
-        <div class="box">
+        <!-- Loading Widget -->
+        <div id="loading-widget" class="loading-widget">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading blocks and classifications...</div>
+            <div class="loading-subtext">Analyzing transactions and contract interactions</div>
+        </div>
+
+        <!-- Content Container -->
+        <div id="content-container" class="box">
             <h2>Latest Blocks</h2>
             {% if blocks %}
                 <div class="controls-row">
                     <div class="older-link">
-                        <a href="{{ url_for('home', chain=current_chain, n=n, start_block=blocks[-1].number) }}">
+                        <a href="{{ url_for('home', chain=current_chain, n=n, start_block=blocks[-1].number) }}" class="nav-link-with-loading">
                             ← Load Older Blocks
                         </a>
                     </div>
                     <div class="home-link">
-                        <a href="{{ url_for('home', chain=current_chain, n=n) }}">
+                        <a href="{{ url_for('home', chain=current_chain, n=n) }}" class="nav-link-with-loading">
                             Latest Blocks
+                        </a>
+                    </div>
+                    <div class="newer-link">
+                        <a href="{{ url_for('home', chain=current_chain, n=n, start_block=blocks[0].number - n) }}" class="nav-link-with-loading">
+                            Load Newer Blocks →
                         </a>
                     </div>
                     <div class="home-search-form">
@@ -131,11 +143,9 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-                
-
-                {% else %}
+            {% else %}
                 <div class="info-box">
-                    <p>No blocks available. {% if error %}Please select a working chain above.{% endif %}</p>
+                    <p>No blocks available. {% if error %}{{ error }}{% endif %}</p>
                 </div>
             {% endif %}
         </div>
@@ -161,6 +171,12 @@
         .nft-activity-block { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
         .standard-block { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
         
+        .deployment { background: #e8f5e8; color: #27ae60; border: 1px solid #a8e6a8; }
+        .trex { background: #fff3e0; color: #f39c12; border: 1px solid #ffcc80; }
+        .erc20 { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+        .erc721 { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
+        .generic { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+        
         .block-meta { color: #666; font-size: 0.9em; margin-bottom: 15px; }
         .tx-count { color: #e74c3c; font-weight: bold; }
         .timestamp { color: #7f8c8d; font-family: monospace; }
@@ -178,7 +194,77 @@
         .badge.erc721 { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
         .badge.generic { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
         
+        .controls-row { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .home-search-form { display: flex; gap: 10px; align-items: center; }
+        .home-search-input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; }
+        .home-search-button { padding: 8px 16px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+        .home-search-button:hover { background: #2980b9; }
+        
         .older-link { display: inline-block; background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; margin-top: 20px; transition: background 0.2s ease; }
         .older-link:hover { background: #2980b9; }
+        
+        .newer-link a { display: inline-block; background: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; transition: background 0.2s ease; }
+        .newer-link a:hover { background: #2980b9; }
+        
+        /* Loading Widget */
+        .loading-widget {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .loading-subtext {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            text-align: center;
+            max-width: 400px;
+            line-height: 1.4;
+        }
     </style>
+    
+    <script>
+        // Show loading widget immediately when page starts loading
+        const loadingWidget = document.getElementById('loading-widget');
+        const contentContainer = document.getElementById('content-container');
+        
+        // Show loading widget immediately
+        loadingWidget.style.display = 'flex';
+        
+        // Hide loading widget and show content when page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Content is ready, show it immediately
+            loadingWidget.style.display = 'none';
+            contentContainer.style.display = 'block';
+        });
+    </script>
 {% endblock %}

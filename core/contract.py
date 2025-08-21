@@ -358,7 +358,21 @@ class ContractClassifier:
                 # Don't assume it's native token - could be any token!
                 return "Token Transfer"  # Generic, not "ETH Transfer"
             
-            # Always check logs for event fingerprinting first (this is more reliable)
+            # FAST PATH: Check input data for common function calls first (no RPC calls)
+            if tx.get('input') and tx['input'] != '0x':
+                function_sig = tx['input'][:10]
+                function_name = TX_FUNCTION_SIGNATURES.get(function_sig, "Unknown Function")
+                
+                if "transfer" in function_name.lower():
+                    return 'Token Transfer'
+                elif "mint" in function_name.lower():
+                    return 'Token Mint'
+                elif "burn" in function_name.lower():
+                    return 'Token Burn'
+                elif "approve" in function_name.lower():
+                    return 'Token Approval'
+            
+            # Only do expensive RPC calls if we really need to
             try:
                 tx_receipt = self.w3.eth.get_transaction_receipt(tx_hash)
                 if tx_receipt and tx_receipt.get('logs'):
@@ -396,22 +410,6 @@ class ContractClassifier:
                             return 'ERC-20 Interaction'
                 except Exception as e:
                     pass
-            
-            # Analyze input data for function calls (fallback)
-            if tx.get('input') and tx['input'] != '0x':
-                function_sig = tx['input'][:10]
-                function_name = TX_FUNCTION_SIGNATURES.get(function_sig, "Unknown Function")
-                
-                if "transfer" in function_name.lower():
-                    return 'Token Transfer'
-                elif "mint" in function_name.lower():
-                    return 'Token Mint'
-                elif "burn" in function_name.lower():
-                    return 'Token Burn'
-                elif "approve" in function_name.lower():
-                    return 'Token Approval'
-                else:
-                    return 'Contract Interaction'
             
             return "Contract Interaction"
             

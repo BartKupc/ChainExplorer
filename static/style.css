@@ -410,6 +410,20 @@
     background: #5a6268;
 }
 
+/* Style newer-link2 to match older-link2 */
+.newer-link2 a {
+    color: #ffffff;
+    text-decoration: none;
+    background: #6c757d;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.newer-link2 a:hover {
+    background: #5a6268;
+}
+
 
 .transactions-link {
     text-align: center;

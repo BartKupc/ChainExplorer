@@ -30,6 +30,7 @@ with app.app_context():
 def home():
     current_chain = request.args.get("chain") or get_default_chain()
     
+    # Get blocks with full transaction data for classification
     try:
         classifier = ContractClassifier(current_chain)
         n = int(request.args.get("n", 5))
@@ -112,7 +113,13 @@ def home():
         start = None
         classifier = None
     
-    return render_template("home.html", blocks=blocks, n=n, current_chain=current_chain, CHAINS=get_chains(), error=error, classifier=classifier)
+    return render_template("home.html", 
+                         blocks=blocks, 
+                         n=n, 
+                         current_chain=current_chain, 
+                         CHAINS=get_chains(), 
+                         error=error, 
+                         classifier=classifier)
 
 
 @app.get("/api/blocks")
@@ -424,21 +431,75 @@ def remove_chain():
 
 @app.get("/all_blocks")
 def all_blocks():
-
     current_chain = request.args.get("chain") or get_default_chain()
     address = request.args.get("address")
     token = request.args.get("token")
     window = int(request.args.get("window", 1000))
     max_logs = int(request.args.get("max_logs", 2000))
-    n = int(request.args.get("n", 20))
+    n = int(request.args.get("n", 5))
     start_block = request.args.get("start_block")
     if start_block:
         start_block = int(start_block)
     
-    # Check if chain is reachable
+    # Get blocks with full transaction data for classification
     try:
+        # Get blocks with full transaction data for classification
         blocks = q.get_all_blocks(current_chain, n, classify=True, start_block=start_block)
+        
+        # Add classification data to each block (same logic as home route)
+        if blocks:
+            classifier = ContractClassifier(current_chain)
+            for block in blocks:
+                if isinstance(block.get('transactions'), list):
+                    # Add detailed transaction classifications FIRST (smart caching)
+                    for i, tx in enumerate(block['transactions']):
+                        # Always create a mutable copy of the transaction
+                        if hasattr(tx, '_asdict'):
+                            tx_dict = dict(tx._asdict())
+                        elif hasattr(tx, '__dict__'):
+                            tx_dict = dict(tx.__dict__)
+                        else:
+                            # Fallback: convert to dict if possible
+                            tx_dict = dict(tx) if hasattr(tx, '__iter__') else {}
+                        
+                        # Convert HexBytes to strings
+                        for key, value in tx_dict.items():
+                            if hasattr(value, 'hex'):
+                                tx_dict[key] = value.hex()
+                        
+                        # Get detailed classification using classify_transaction (the good one!)
+                        try:
+                            # Handle hash conversion safely - check if it's already a string
+                            tx_hash = tx_dict['hash']
+                            if hasattr(tx_hash, 'hex'):
+                                tx_hash = tx_hash.hex()
+                            
+                            tx_type = classifier.classify_transaction(tx_hash)
+                            tx_details = classifier._get_transaction_details(tx_hash)
+                            
+                            # Store the full classification
+                            tx_dict['classification'] = {
+                                'type': tx_type,
+                                'details': tx_details
+                            }
+                            
+                            # Update the transaction in the block
+                            block['transactions'][i] = tx_dict
+                            
+                        except Exception as e:
+                            print(f"Warning: Failed to classify transaction {tx_dict.get('hash', 'unknown')}: {e}")
+                            tx_dict['classification'] = {'type': 'Unknown', 'details': {}}
+                            block['transactions'][i] = tx_dict
+                    
+                    # Now use the stored classifications for block summary (fast, no RPC calls)
+                    try:
+                        block['classification'] = classifier.classify_block_from_stored_classifications(block)
+                    except Exception as e:
+                        print(f"Warning: Failed to classify block {block.get('number', 'unknown')}: {e}")
+                        block['classification'] = {'block_type': 'Standard Block', 'primary_activity': 'Unknown'}
+        
         error = None
+        
     except Exception as e:
         # Chain is unreachable
         blocks = []

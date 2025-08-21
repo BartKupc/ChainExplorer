@@ -99,6 +99,32 @@
             // Redirect to the same page with new chain
             window.location.href = url.toString();
         }
+        
+        // Navigation loading widget
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to all navigation links
+            const navLinks = document.querySelectorAll('.nav-link-with-loading');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Show loading widget on current page before navigation
+                    const currentLoadingWidget = document.getElementById('loading-widget');
+                    const currentContentContainer = document.getElementById('content-container');
+                    
+                    if (currentLoadingWidget && currentContentContainer) {
+                        // Show loading widget immediately
+                        currentLoadingWidget.style.display = 'flex';
+                        currentContentContainer.style.display = 'none';
+                        
+                        // Add a small delay to ensure loading widget is visible
+                        setTimeout(() => {
+                            // Continue with navigation
+                            window.location.href = this.href;
+                        }, 100);
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
