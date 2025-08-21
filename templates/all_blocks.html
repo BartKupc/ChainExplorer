@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}All Blocks{% endblock %}
+
+{% block content %}
+<h1>All Blocks</h1>
+
+<!-- Latest Blocks -->
+<div class="box">
+    <h2>Blocks from: {{ blocks[0].number }} to {{ blocks[-1].number }}</h2>
+    {% if blocks %}
+        <div class="controls-row2">
+            <div class="older-link2">
+                <a href="{{ url_for('all_blocks', chain=current_chain, n=n, address=address, token=token, window=window, max_logs=max_logs, median_block=blocks[-1].number - n//2	) }}">
+                    ← Load Older Blocks
+                </a>
+            </div>
+            <div class="transactions-link">
+                <a href="{{ url_for('all_blocks', chain=current_chain, n=n) }}">
+                    Latest Blocks
+                </a>
+            </div>
+            <div class="transactions-search-form">
+                <form action="{{ url_for('all_blocks', chain=current_chain) }}" method="get">
+                    <input type="hidden" name="chain" value="{{ current_chain }}"> 
+                    <input type="hidden" name="n" value="{{ n }}">
+                    <input type="hidden" name="address" value="{{ address }}">
+                    <input type="hidden" name="token" value="{{ token }}">
+                    <input type="hidden" name="window" value="{{ window }}">
+                    <input type="hidden" name="max_logs" value="{{ max_logs }}">
+                    <input name="median_block" value="{{ median_block }}" placeholder="Block #" class="transactions-search-input" required>
+                    <button type="submit" class="transactions-search-button">Go to Block Range</button>
+                </form>
+            </div>
+        </div>
+        {% for t in blocks %}
+            <div class="block-item">
+                <!-- Left side: Block number button -->
+                <div class="block2-number">
+                    <a href="{{ url_for('block_page', ref=t.number, chain=current_chain) }}" class="block2-link">
+                        Block #{{ t.number }}
+                    </a>
+                </div>
+                
+                <!-- Right side: Details in columns -->
+                <div class="block2-details">
+                    <div class="detail2-column">
+                        <span class="detail2-label">Transactions</span>
+                        <span class="detail2-value">{{ t.transactions|length }}</span>
+                    </div>
+                    
+                    <div class="detail2-column">
+                        <span class="detail2-label">Timestamp</span>
+                        <span class="detail2-value">{{ t.timestamp }}</span>
+                    </div>
+                    
+                    <div class="detail2-column">
+                        <span class="detail2-label">Gas Used</span>
+                        <span class="detail2-value">{{ t.gasUsed }}/{{ t.gasLimit }}</span>
+                    </div>
+                    
+                    <div class="detail2-column">
+                        <span class="detail2-label">Miner</span>
+                        <span class="detail2-value">{{ t.miner[:10] }}...</span>
+                    </div>
+                    
+                    <div class="detail2-column">
+                        <span class="detail2-label">Size</span>
+                        <span class="detail2-value">{{ (t.size / 1024)|round(1) }} KB</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+    {% else %}
+        <div class="info-box">
+            <p>No blocks available. {% if error %}{{ error }}{% endif %}</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

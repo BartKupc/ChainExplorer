@@ -1,0 +1,796 @@
+/* Search page specific styles */
+.search-container h1 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    padding-bottom: 10px;
+
+}
+
+.search-by-address, .search-by-token {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-by-address h3, .search-by-token h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.search-by-address form, .search-by-token form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-by-address label, .search-by-token label {
+    font-weight: bold;
+    color: #555;
+    min-width: 80px;
+}
+
+.search-by-address input, .search-by-token input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+.search-by-address button, .search-by-token button {
+    padding: 8px 16px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.search-by-address button:hover, .search-by-token button:hover {
+    background: #2980b9;
+}
+
+.general-search {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.general-search .search-form {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.nav-menu { 
+    display: flex; 
+    list-style: none; 
+    margin: 0; 
+    padding: 0; 
+    align-items: center;  /* Center buttons vertically */
+}
+
+.nav-item { 
+    margin: 0; 
+    display: flex;        /* Make each item a flex container */
+    align-items: center;  /* Center content vertically */
+}
+
+.nav-link { 
+    color: white; 
+    text-decoration: none; 
+    padding: 20px 15px; 
+    display: block; 
+    transition: background 0.2s ease;
+    white-space: nowrap;  /* Prevent text wrapping */
+    text-align: center;   /* Center text in buttons */
+    min-width: 120px;     /* Consistent button width */
+    height: 60px;         /* Consistent button height */
+    line-height: 20px;    /* Center text vertically */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.older-link {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.older-link a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.controls-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+.chain-selector{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.home-link a {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.home-link a:hover {
+    background: #2980b9;
+}
+
+.chain-controls { display: flex; align-items: center; gap: 8px; }
+.chain-buttons { display: flex; gap: 4px; }
+.chain-btn { 
+    padding: 8px; 
+    border-radius: 4px; 
+    background: #34495e; 
+    color: white; 
+    text-decoration: none; 
+    font-size: 14px; 
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+}
+
+.error-box {
+    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    border: 2px solid #f44336;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.error-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f44336, #ff5722, #ff9800);
+}
+
+.error-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.error-icon {
+    font-size: 24px;
+    animation: pulse 2s infinite;
+}
+
+.error-header h3 {
+    margin: 0;
+    color: #c62828;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.error-content {
+    color: #333;
+}
+
+.error-message {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border-left: 4px solid #f44336;
+    margin: 0 0 20px 0;
+    font-weight: 500;
+}
+
+.chain-suggestions {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ffcdd2;
+}
+
+.suggestion-title {
+    margin: 0 0 16px 0;
+    color: #c62828;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.chain-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.chain-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.chain-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(33, 150, 243, 0.4);
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+}
+
+.chain-name {
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.chain-id {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .error-box {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
+    .chain-links {
+        gap: 8px;
+    }
+    
+    .chain-link {
+        min-width: 100px;
+        padding: 10px 16px;
+    }
+}
+
+/* Add to your CSS */
+.info-box {
+    background: #f0f8ff;
+    border: 1px solid #b0d4f1;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.transaction {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.filters {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* All Blocks Search - Simple styling */
+.all-blocks-search {
+    background: #f0f8ff;
+    border: 1px solid #b0d4f1;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.all-blocks-search h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.all-blocks-search form {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.all-blocks-search label {
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.all-blocks-search input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.all-blocks-search button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Block Items - Simple styling */
+.block-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.block-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.block-link:hover {
+    color: #2980b9;
+}
+
+.block-meta {
+    color: #666;
+    font-size: 14px;
+}
+
+.tx-count {
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 8px;
+}
+
+/* Update your existing .controls-row to better style the buttons */
+.controls-row2 { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* Make sure older-link has proper button styling */
+.older-link2 a {
+    color: #ffffff;
+    text-decoration: none;
+    background: #6c757d;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.older-link2 a:hover {
+    background: #5a6268;
+}
+
+
+.transactions-link {
+    text-align: center;
+
+}
+
+.transactions-link a {
+    color: #ffffff;
+    text-decoration: none;
+    background: #3498db;
+    padding: 10px 20px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.transactions-link a:hover {
+    background: #2980b9;
+}
+
+/* Style the search form in controls row */
+.transactions-search-form {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.transactions-search-input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 120px;
+}
+
+.transactions-search-button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.transactions-search-button:hover {
+    background: #218838;
+}
+.block2-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* Use flexbox to create left-right layout */
+    display: flex;
+    align-items: center;
+    gap: 30px;  /* Space between block number and details */
+}
+
+.block2-number {
+    /* Left side - block number button */
+    flex-shrink: 0;  /* Don't shrink the button */
+    min-width: 120px;
+}
+
+.block2-link {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-width: 100px;
+}
+
+.block2-link:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.block2-details {
+    /* Right side - details in columns */
+    flex: 1;  /* Take remaining space */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    align-items: center;
+}
+
+.detail2-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.detail2-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.detail2-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #495057;
+}
+
+.block-classification-summary { 
+background: #f8f9fa; 
+border-radius: 8px; 
+padding: 20px; 
+margin-bottom: 20px; 
+border-left: 4px solid #3498db; 
+}
+
+.classification-header { 
+display: flex; 
+align-items: center; 
+gap: 15px; 
+margin-bottom: 15px; 
+}
+
+.block-type-badge { 
+padding: 6px 16px; 
+border-radius: 20px; 
+font-size: 0.9em; 
+font-weight: 600; 
+text-transform: uppercase; 
+letter-spacing: 0.5px; 
+}
+
+.deployment-block { background: #e8f5e8; color: #27ae60; border: 1px solid #a8e6a8; }
+.t-rex-activity-block { background: #fff3e0; color: #f39c12; border: 1px solid #ffcc80; }
+.token-transfer-block { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+.nft-activity-block { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
+.standard-block { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+
+.primary-activity { 
+font-weight: 600; 
+color: #2c3e50; 
+font-size: 1.1em; 
+}
+
+.classification-stats { 
+display: flex; 
+gap: 30px; 
+margin-bottom: 15px; 
+}
+
+.stat-item { 
+display: flex; 
+flex-direction: column; 
+gap: 5px; 
+}
+
+.stat-label { 
+font-size: 0.85em; 
+color: #666; 
+font-weight: 500; 
+}
+
+.stat-value { 
+font-weight: 600; 
+font-size: 1.1em; 
+}
+
+.gas-high { color: #e74c3c; }
+.gas-medium { color: #f39c12; }
+.gas-low { color: #27ae60; }
+
+.classification-breakdown { 
+display: flex; 
+gap: 10px; 
+flex-wrap: wrap; 
+}
+
+.badge { 
+padding: 6px 12px; 
+border-radius: 16px; 
+font-size: 0.85em; 
+font-weight: 600; 
+}
+
+.badge.deployment { background: #e8f5e8; color: #27ae60; border: 1px solid #a8e6a8; }
+.badge.trex { background: #fff3e0; color: #f39c12; border: 1px solid #ffcc80; }
+.badge.erc20 { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
+.badge.erc721 { background: #f3e5f5; color: #7b1fa2; border: 1px solid #ce93d8; }
+.badge.generic { background: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+
+.transaction-item { 
+background: white; 
+border: 1px solid #e0e0e0; 
+border-radius: 8px; 
+padding: 20px; 
+margin: 15px 0; 
+box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+.transaction-header { 
+display: flex; 
+align-items: center; 
+gap: 15px; 
+margin-bottom: 15px; 
+padding-bottom: 10px; 
+border-bottom: 1px solid #f0f0f0; 
+}
+
+.tx-number { 
+background: #3498db; 
+color: white; 
+padding: 4px 12px; 
+border-radius: 16px; 
+font-weight: 600; 
+font-size: 0.9em; 
+}
+
+.tx-type-badge { 
+padding: 4px 12px; 
+border-radius: 16px; 
+font-size: 0.8em; 
+font-weight: 600; 
+}
+
+.tx-type-badge.deployment { background: #e8f5e8; color: #27ae60; }
+.tx-type-badge.t-rex { background: #fff3e0; color: #f39c12; }
+.tx-type-badge.token { background: #e3f2fd; color: #1976d2; }
+.tx-type-badge.nft { background: #f3e5f5; color: #7b1fa2; }
+.tx-type-badge.contract { background: #f5f5f5; color: #616161; }
+
+.tx-priority { 
+padding: 2px 8px; 
+border-radius: 12px; 
+font-size: 0.75em; 
+font-weight: 600; 
+text-transform: uppercase; 
+}
+
+.priority-high { background: #ffebee; color: #c62828; }
+.priority-medium { background: #fff3e0; color: #ef6c00; }
+.priority-low { background: #e8f5e8; color: #2e7d32; }
+
+.transaction-details { 
+display: flex; 
+flex-direction: column; 
+gap: 15px; 
+}
+
+.tx-hash { 
+display: flex; 
+align-items: center; 
+gap: 10px; 
+}
+
+.hash-link { 
+color: #3498db; 
+text-decoration: none; 
+font-family: monospace; 
+font-weight: 500; 
+}
+
+.hash-link:hover { 
+text-decoration: underline; 
+}
+
+.tx-classification-details { 
+background: #f8f9fa; 
+border-radius: 6px; 
+padding: 15px; 
+border-left: 3px solid #3498db; 
+}
+
+.tx-address { 
+display: flex; 
+align-items: center; 
+gap: 10px; 
+margin-bottom: 8px; 
+}
+
+.address { 
+font-family: monospace; 
+font-size: 0.9em; 
+color: #2c3e50; 
+background: white; 
+padding: 2px 6px; 
+border-radius: 4px; 
+border: 1px solid #e0e0e0; 
+}
+
+.tx-events { 
+margin-top: 10px; 
+}
+
+.event-count { 
+font-weight: 600; 
+color: #666; 
+margin-left: 5px; 
+}
+
+.event-preview { 
+display: flex; 
+gap: 8px; 
+margin-top: 8px; 
+flex-wrap: wrap; 
+}
+
+.event-badge { 
+background: white; 
+border: 1px solid #e0e0e0; 
+padding: 4px 8px; 
+border-radius: 12px; 
+font-size: 0.8em; 
+font-family: monospace; 
+}
+
+.event-badge.unknown { 
+color: #666; 
+font-style: italic; 
+}
+
+.tx-info-row {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 8px 0;
+border-bottom: 1px solid #f0f0f0;
+}
+
+.tx-info-row:last-child {
+border-bottom: none;
+}
+
+.tx-info-row .label {
+font-weight: 600;
+color: #666;
+min-width: 80px;
+}
+
+.tx-info-row .value {
+color: #2c3e50;
+font-family: monospace;
+}
+
+.event-list {
+margin-top: 10px;
+}
+
+.event-item {
+background: #f8f9fa;
+padding: 8px 12px;
+margin: 5px 0;
+border-radius: 6px;
+border-left: 3px solid #3498db;
+}
+
+.event-name {
+font-weight: 600;
+color: #2c3e50;
+display: block;
+margin-bottom: 4px;
+}
+
+.event-name.unknown {
+color: #666;
+font-style: italic;
+}
+
+.event-topics {
+font-size: 0.85em;
+color: #7f8c8d;
+}

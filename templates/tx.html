@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction {{ data.tx.hash if data and data.tx else 'Error' }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="header">
+            <h1>Transaction Explorer</h1>
+        </div>
+
+        {% if error %}
+          <div class="error-box">
+            <strong>Error:</strong> {{ error }}
+          </div>
+        {% endif %}
+
+        {% if data and data.tx %}
+          {% set tx = data.tx %}
+          {% set rcpt = data.receipt %}
+
+          <div class="box">
+            <h2>Transaction</h2>
+            <div class="info-row">
+                <span class="label">Hash:</span>
+                <span class="value hash">{{ tx.hash }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">From:</span>
+                <span class="value">{{ tx.from }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">To:</span>
+                <span class="value">{{ tx.to or 'contract creation' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Block:</span>
+                <span class="value">
+                    {% if tx.blockNumber is not none %}
+                      <a href="{{ url_for('block_page', ref=tx.blockNumber, chain=current_chain) }}">#{{ tx.blockNumber }}</a>
+                    {% else %} pending {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="label">Value (wei):</span>
+                <span class="value">{{ tx.value }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Gas Price:</span>
+                <span class="value">{{ tx.gasPrice }}</span>
+            </div>
+
+            {% if rcpt %}
+              <div class="info-row">
+                <span class="label">Status:</span>
+                <span class="value">{{ rcpt.status }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Gas Used:</span>
+                <span class="value">{{ rcpt.gasUsed }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">Logs:</span>
+                <span class="value">{{ (rcpt.logs or [])|length }}</span>
+              </div>
+            {% else %}
+              <div class="info-row">
+                <span class="label">Receipt:</span>
+                <span class="value">pending</span>
+              </div>
+            {% endif %}
+          </div>
+          
+          {% if data.logs %}
+            <div class="box">
+              <h3>Event Logs ({{ data.logs|length }})</h3>
+              {% for log in data.logs %}
+                <div style="border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; background: #f9f9f9;">
+                  <div><strong>Log #{{ loop.index }}</strong></div>
+                  <div>Address: <code>{{ log.address }}</code></div>
+                  <div>Topics:</div>
+                  <ul>
+                    {% for topic in log.topics %}
+                      <li><code>{{ topic }}</code></li>
+                    {% endfor %}
+                  </ul>
+                  <div>Data: <code>{{ log.data }}</code></div>
+                  <div>Block: {{ log.blockNumber }}</div>
+                  <div>Transaction: <code>{{ log.transactionHash }}</code></div>
+                  <div>Log Index: {{ log.logIndex }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="box">
+            <p>No transaction data available.</p>
+          </div>
+        {% endif %}
+    </div>
+{% endblock %}

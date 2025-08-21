@@ -1,0 +1,40 @@
+
+{% extends "base.html" %}
+
+{% block title %} Search for an address {% endblock %}
+
+{% block content %}
+
+    <h2>Address {{ addr }} ({{ active_chain }})</h2>
+
+    <div class="box">
+      <div><b>Native balance (wei):</b> {{ balance_wei }}</div>
+      <form method="get">
+        <input type="hidden" name="chain" value="{{ active_chain }}">
+        <label>Window:</label><input name="window" value="{{ window }}">
+        <label>Max logs:</label><input name="max_logs" value="{{ max_logs }}">
+        <label>Token (optional):</label><input name="token" value="{{ token or '' }}" placeholder="0x...">
+        <button>Apply</button>
+      </form>
+    </div>
+
+    <div class="box">
+      <h3>Recent ERC-20 Transfers ({{ transfers|length }})</h3>
+      {% if transfers %}
+        {% for t in transfers[:100] %}
+          <div class="info-row">
+            <span class="label">{{ t.block }}</span>
+            <span class="value">
+              <a href="{{ url_for('tx_page', txhash=t.tx, chain=active_chain) }}">{{ t.tx[:14] }}…</a>
+            </span>
+            <span class="value">{{ t.token }}</span>
+            <span class="value">{{ t.from[:8] }}… → {{ t.to[:8] }}…</span>
+            <span class="value">{{ t.value_raw }}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No transfers in the selected window.</p>
+      {% endif %}
+    </div>
+
+{% endblock %}

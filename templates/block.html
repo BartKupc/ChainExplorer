@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Block {{ block.number if block else 'Error' }}{% endblock %}
+
+
+
+{% block content %}
+    <div class="container">
+        <div class="header">
+            <h1>Block Explorer</h1>
+        </div>
+
+        {% if block %}
+        <!-- Block Info -->
+        <div class="box">
+            <h2>Block #{{ block.number }}</h2>
+            
+            <!-- Debug: Show what's available -->
+            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; font-family: monospace; font-size: 12px;">
+                <strong>Debug:</strong> Block has classification: {{ 'YES' if block.classification else 'NO' }}<br>
+                {% if block.classification %}
+                    Block type: {{ block.classification.block_type }}<br>
+                    Primary activity: {{ block.classification.primary_activity }}<br>
+                    Gas efficiency: {{ block.classification.gas_efficiency }}<br>
+                    Contract creations: {{ block.classification.classifications.contract_creations }}<br>
+                    T-REX interactions: {{ block.classification.classifications.trex_interactions }}<br>
+                    ERC-20 transfers: {{ block.classification.classifications.erc20_transfers }}<br>
+                    ERC-721 transfers: {{ block.classification.classifications.erc721_transfers }}<br>
+                    Generic contracts: {{ block.classification.classifications.generic_contracts }}
+                {% endif %}
+            </div>
+            
+            <!-- Enhanced Block Classification Summary -->
+            {% if block.classification %}
+                <div class="block-classification-summary">
+                    <div class="classification-header">
+                        <span class="block-type-badge {{ block.classification.block_type.lower().replace(' ', '-') }}">
+                            {{ block.classification.block_type }}
+                        </span>
+                        <span class="primary-activity">{{ block.classification.primary_activity }}</span>
+                    </div>
+                    
+                    <div class="classification-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Gas Efficiency:</span>
+                            <span class="stat-value gas-{{ block.classification.gas_efficiency.lower() }}">
+                                {{ block.classification.gas_efficiency }}
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Transactions:</span>
+                            <span class="stat-value">{{ block.classification.classifications.total_transactions }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="classification-breakdown">
+                        {% if block.classification.classifications.contract_creations > 0 %}
+                            <span class="badge deployment">🏭 {{ block.classification.classifications.contract_creations }} Deployments</span>
+                        {% endif %}
+                        {% if block.classification.classifications.trex_interactions > 0 %}
+                            <span class="badge trex">🦖 {{ block.classification.classifications.trex_interactions }} T-REX</span>
+                        {% endif %}
+                        {% if block.classification.classifications.erc20_transfers > 0 %}
+                            <span class="badge erc20">🪙 {{ block.classification.classifications.erc20_transfers }} ERC-20</span>
+                        {% endif %}
+                        {% if block.classification.classifications.erc721_transfers > 0 %}
+                            <span class="badge erc721">🖼️ {{ block.classification.classifications.erc721_transfers }} ERC-721</span>
+                        {% endif %}
+                        {% if block.classification.classifications.generic_contracts > 0 %}
+                            <span class="badge generic">⚙️ {{ block.classification.classifications.generic_contracts }} Generic</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="info-row">
+                <span class="label">Hash:</span>
+                <span class="value hash">
+                    {% if block.hash %}
+                        {% if block.hash is string %}
+                            {{ block.hash }}
+                        {% else %}
+                            {{ block.hash.hex() }}
+                        {% endif %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="label">Timestamp:</span>
+                <span class="value">{{ block.timestamp }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Transactions:</span>
+                <span class="value number">{{ block.transactions|length }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Gas Used:</span>
+                <span class="value">{{ block.gasUsed }}</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Gas Limit:</span>
+                <span class="value">{{ block.gasLimit }}</span>
+            </div>
+        </div>
+
+        <!-- Transactions Section - Always Show -->
+        <div class="box">
+            <h3>Transactions ({{ block.transactions|length }})</h3>
+            {% if block.transactions and block.transactions|length > 0 %}
+                {% for tx in block.transactions %}
+                <div class="transaction-item">
+                    <div class="transaction-header">
+                        <span class="tx-number">#{{ loop.index }}</span>
+                        {% if tx.classification %}
+                            <span class="tx-type-badge {{ tx.classification.category.lower() }}">
+                                {{ tx.classification.type }}
+                            </span>
+                            <span class="tx-priority priority-{{ tx.classification.priority.lower() }}">
+                                {{ tx.classification.priority }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="transaction-details">
+                        <div class="tx-hash">
+                            <span class="label">Hash:</span>
+                            <a href="{{ url_for('tx_page', txhash=tx.hash.hex(), chain=current_chain) }}" class="hash-link">
+                                {{ tx.hash.hex() }}
+                            </a>
+                        </div>
+                        
+                        <!-- Transaction Classification Details -->
+                        {% if tx.classification %}
+                            <div class="tx-classification-details">
+                                <div class="tx-info-row">
+                                    <span class="label">Type:</span>
+                                    <span class="value">{{ tx.classification.type }}</span>
+                                </div>
+                                
+                                {% if tx.classification.details %}
+                                    {% if tx.classification.details.from %}
+                                        <div class="tx-info-row">
+                                            <span class="label">From:</span>
+                                            <span class="address">{{ tx.classification.details.from }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if tx.classification.details.to %}
+                                        <div class="tx-info-row">
+                                            <span class="label">To:</span>
+                                            <span class="address">{{ tx.classification.details.to }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if tx.classification.details.logs %}
+                                        <div class="tx-events">
+                                            <span class="label">Events:</span>
+                                            <span class="event-count">{{ tx.classification.details.logs|length }} found</span>
+                                            {% if tx.classification.details.logs|length > 0 %}
+                                                <div class="event-list">
+                                                    {% for log in tx.classification.details.logs %}
+                                                        <div class="event-item">
+                                                            {% if log.event_name %}
+                                                                <span class="event-name">{{ log.event_name }}</span>
+                                                            {% else %}
+                                                                <span class="event-name unknown">Unknown Event</span>
+                                                            {% endif %}
+                                                            {% if log.topics %}
+                                                                <span class="event-topics">Topics: {{ log.topics|length }}</span>
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: #666; font-style: italic;">No transactions in this block</p>
+            {% endif %}
+        </div>
+
+        {% endif %}
+
+        <!-- Show Error Message if it exists -->
+        {% if error %}
+        <div class="box error-box">
+            <h3>❌ Error Loading Block</h3>
+            <p><strong>{{ error }}</strong></p>
+            <p>This could be due to:</p>
+            <ul>
+                <li>Invalid block number or hash</li>
+                <li>Network connection issues</li>
+                <li>Block not found on this chain</li>
+                <li>RPC endpoint problems</li>
+            </ul>
+            <p><em>Try checking the block reference or switching to a different chain.</em></p>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

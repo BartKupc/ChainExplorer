@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %} Manage chains {% endblock %}
+
+{% block content %}
+
+    <h2>Manage chains</h2>
+
+
+
+    <div class="box">
+        <h3>Add chain</h3>
+        <form method="post" action="{{ url_for('add_chain') }}">
+            <input type="text" name="key" placeholder="Key">
+            <input type="text" name="chain_id" placeholder="Chain ID">
+            <input type="text" name="rpc_url" placeholder="RPC URL">
+            <input type="text" name="fallback" placeholder="Fallback">
+            <button type="submit">Add</button>
+        </form>
+    </div>
+    <div class="box">
+        <h3>Remove chain</h3>
+        <form method="post" action="{{ url_for('remove_chain') }}">
+            <input type="text" name="key" placeholder="Key">
+            <button type="submit">Remove</button>
+        </form>
+    </div>
+    <div class="box">
+        <h3>Default chain</h3>
+        <ul>
+          <li>Name: {{default_chain.key }}<br> key: {{ default_chain_key }}<br>ID: {{ default_chain.chain_id }} <br> RPC URL: {{ default_chain.rpc_url }} <br> Fallback: {{ default_chain.fallback }}</li>
+        </ul>
+        <h3>Current chain</h3>
+        <ul>
+          <li>Name: {{current_chain_obj.key }}<br> key: {{ current_chain_key }}<br>ID: {{ current_chain_obj.chain_id }} <br> RPC URL: {{ current_chain_obj.rpc_url }} <br> Fallback: {{ current_chain_obj.fallback }}</li>
+        </ul>
+        <h3>Inactive chains</h3>
+        <ul>
+          {% for key, chain in CHAINS.items() %}
+            {% if key != current_chain_key %}
+              <li>Name: {{ chain.key }} <br> key: {{ key }}<br>ID: {{ chain.chain_id }} <br> RPC URL: {{ chain.rpc_url }} <br> Fallback: {{ chain.fallback }}</li>
+              <br>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+
+
+    
+
+
+
+{% endblock %}

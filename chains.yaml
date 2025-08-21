@@ -1,0 +1,31 @@
+# chains.yaml
+# Tip: .env can override any RPC via the env var named in `rpc_env`.
+
+chains:
+  Cronos:
+    chain_id: 25
+    rpc_url: "https://evm.cronos.org/"
+    fallback: "https://cronos-evm.publicnode.com"
+
+  Hardhat:
+    rpc_url: "http://127.0.0.1:8545"
+    fallback: "http://127.0.0.1:8545"
+    chain_id: 31337
+    
+  Ethereum:
+    chain_id: 1
+    rpc_url: "https://cloudflare-eth.com"
+    fallback: "https://cloudflare-eth.com"
+    
+
+  BaseSepolia:
+    chain_id: 84532
+    rpc_url: "https://sepolia.base.org"
+    fallback: "https://sepolia.base.org"
+
+  Base:
+    chain_id: 8453
+    rpc_url: "https://base-rpc.publicnode.com"
+    fallback: "https://mainnet.base.org"
+
+

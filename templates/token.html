@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %} Search for a token {% endblock %}
+
+{% block content %}
+
+<h2>Token {{ token }} ({{ active_chain }})</h2>
+
+
+
+<form method="get">
+    <input type="hidden" name="chain" value="{{ active_chain }}">
+    <label>Window:</label><input name="window" value="{{ window }}">
+    <label>Max logs:</label><input name="max_logs" value="{{ max_logs }}">
+    <label>Holder (optional):</label>
+    <input name="holder" value="{{ holder or '' }}" placeholder="0x...">
+    <button>Apply</button>
+  </form>
+
+<div class="box">
+  <h3>Recent Transfers ({{ rows|length }})</h3>
+  {% if rows %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+      <!-- Table Headers -->
+      <thead>
+        <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+          <th style="padding: 12px 8px; text-align: left; font-weight: bold; color: #555;">Block</th>
+          <th style="padding: 12px 8px; text-align: left; font-weight: bold; color: #555;">Transaction</th>
+          <th style="padding: 12px 8px; text-align: left; font-weight: bold; color: #555;">From → To</th>
+          <th style="padding: 12px 8px; text-align: left; font-weight: bold; color: #555;">Amount</th>
+        </tr>
+      </thead>
+      
+      <!-- Transfer Rows -->
+      <tbody>
+        {% for t in rows[:200] %}
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px 8px; color: #333; font-family: monospace;">#{{ t.block }}</td>
+            <td style="padding: 10px 8px;">
+              <a href="{{ url_for('tx_page', txhash=t.tx, chain=active_chain) }}" style="color: #e74c3c; text-decoration: none;">{{ t.tx }}</a>
+            </td>
+            <td style="padding: 10px 8px; font-family: monospace; font-size: 0.9em;">
+              {{ t.from }} → {{ t.to }}
+            </td>
+            <td style="padding: 10px 8px; color: #333; font-family: monospace;">{{ t.value_raw }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No transfers in this window.</p>
+  {% endif %}
+</div>
+{% endblock %}

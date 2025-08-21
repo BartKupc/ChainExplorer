@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Block {{ block.number if block else 'Error' }}{% endblock %}
+
+{% block content %}
+
+<div class="search-container">
+    <h1>ERC20 Search Engine</h1>
+
+    <div class="general-search">
+        <h3>General Search</h3>
+        <form action="{{ url_for('search') }}" method="get" class="search-form">
+            <input type="hidden" name="chain" value="{{ active_chain }}">
+            <input name="q" placeholder="Block #, tx hash, address" class="search-input" required>
+            <button type="submit" class="search-button">Search</button>
+        </form>
+    </div>
+
+    <div class="search-by-address">
+        <h3>Search by Address</h3>
+        <form onsubmit="updateSearchUrl(this, event, 'address')">
+          <input type="hidden" name="chain" value="{{ active_chain }}">
+          <label>Address:</label><input name="address" value="{{ address }}">
+          <label>Window:</label><input name="window" value="{{ window }}">
+          <label>Max logs:</label><input name="max_logs" value="{{ max_logs }}">
+          <label>Token (optional):</label><input name="token" value="{{ token or '' }}" placeholder="0x...">
+          <button>Apply</button>
+        </form>
+      </div>
+
+    <div class="search-by-token">
+        <h3>Search by Token</h3>
+        <form onsubmit="updateSearchUrl(this, event, 'token')">
+            <input type="hidden" name="chain" value="{{ active_chain }}">
+            <label>Token:</label><input name="token" value="{{ token or '' }}" placeholder="0x...">
+            <label>Window:</label><input name="window" value="{{ window }}">
+            <label>Max logs:</label><input name="max_logs" value="{{ max_logs }}">
+            <label>Address (Optional):</label><input name="address" value="{{ address }}">
+            <button>Apply</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function updateSearchUrl(form, event, type) {
+        event.preventDefault();
+        const chain = '{{ active_chain }}';
+        
+        if (type === 'address') {
+            const address = form.querySelector('input[name="address"]').value;
+            const window = form.querySelector('input[name="window"]').value;
+            const maxLogs = form.querySelector('input[name="max_logs"]').value;
+            const token = form.querySelector('input[name="token"]').value;
+            
+            let url = `{{ base_url }}/address/${address}?chain=${chain}&window=${window}&max_logs=${maxLogs}`;
+            if (token) url += `&token=${token}`;
+            location.href = url;
+        }
+        
+        if (type === 'token') {
+            const token = form.querySelector('input[name="token"]').value;
+            const window = form.querySelector('input[name="window"]').value;
+            const maxLogs = form.querySelector('input[name="max_logs"]').value;
+            const address = form.querySelector('input[name="address"]').value;
+            
+            let url = `{{ base_url }}/token/${token}?chain=${chain}&window=${window}&max_logs=${maxLogs}`;
+            if (address) url += `&address=${address}`;
+            location.href = url;
+        }
+    }
+</script>
+
+{% endblock %}
